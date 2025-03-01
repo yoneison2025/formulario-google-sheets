@@ -110,11 +110,9 @@
         // Función para manejar la respuesta de autenticación
         function handleCredentialResponse(response) {
             if (response.credential) {
-                // Aquí puedes decodificar el token JWT si necesitas información del usuario
                 const idToken = response.credential;
                 console.log("Token de ID recibido:", idToken);
 
-                // Inicializa la API de Google Drive
                 gapi.load('client:auth2', () => {
                     gapi.client.init({
                         apiKey: API_KEY,
@@ -123,7 +121,7 @@
                         scope: SCOPES
                     }).then(() => {
                         accessToken = gapi.auth.getToken().access_token;
-                        console.log("Access Token:", accessToken); // Verifica el token
+                        console.log("Access Token:", accessToken);
                         alert("Autenticación exitosa. Ahora puedes subir archivos.");
                     });
                 });
@@ -145,12 +143,11 @@
                 return;
             }
 
-            // Muestra el mensaje de carga
             document.getElementById("loading").style.display = "block";
 
             const metadata = {
                 name: file.name,
-                parents: [CARPETA_ID] <!-- Aquí se usa el ID de la carpeta -->
+                parents: [CARPETA_ID]
             };
 
             const form = new FormData();
