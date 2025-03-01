@@ -3,53 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario de Contacto</title>
+    <title>Gestión de Documentos</title>
 </head>
 <body>
-    <h1>Formulario de Contacto</h1>
-    <form id="contactForm">
-        <label for="nombre">Nombre:</label><br>
-        <input type="text" id="nombre" name="nombre" required><br><br>
-        
-        <label for="email">Email:</label><br>
-        <input type="email" id="email" name="email" required><br><br>
-        
-        <label for="mensaje">Mensaje:</label><br>
-        <textarea id="mensaje" name="mensaje" rows="4" cols="50" required></textarea><br><br>
-        
-        <button type="submit">Enviar</button>
-    </form>
+    <h1>Registro de Documentos</h1>
 
-    <script>
-        document.getElementById('contactForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            
-            // Obtener los datos del formulario
-            const formData = {
-                nombre: document.getElementById('nombre').value,
-                email: document.getElementById('email').value,
-                mensaje: document.getElementById('mensaje').value
-            };
-            
-            // Enviar los datos al script de Google Apps
-            fetch('https://script.google.com/macros/s/AKfycbyv2QScQOOFE0W-IB7BNA3MEw8yanQYSXubRJH_xS_YdfounAo_qQeLNtsY2CNJQUe3/exec', {
-                method: 'POST',
-                body: JSON.stringify(formData),
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                mode: 'no-cors' // Desactiva CORS
-            })
-            .then(() => {
-                // No podrás leer la respuesta, pero la solicitud se enviará
-                alert('Solicitud enviada (pero no se puede verificar la respuesta)');
-                document.getElementById('contactForm').reset(); // Limpiar el formulario
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Hubo un error al enviar los datos');
+    <input type="text" id="numero" placeholder="Número"><br>
+    <input type="text" id="titulo" placeholder="Título"><br>
+    <input type="date" id="fecha" placeholder="Fecha de Expedición"><br>
+    <input type="text" id="secretaria" placeholder="Secretaría"><br>
+    <input type="text" id="responsable" placeholder="Responsable"><br>
+    <input type="text" id="documento" placeholder="Documento"><br>
+    <textarea id="observaciones" placeholder="Observaciones"></textarea><br>
+    
+    <button onclick="guardarDocumento()">Guardar Documento</button>
+
+    <h2>Lista de Documentos</h2>
+    <ul id="lista-documentos"></ul>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDi814l8RdzuRvHGN6yKkVX9SkaXgA8uX8",
+            authDomain: "bdatosnormas.firebaseapp.com",
+            projectId: "bdatosnormas",
+            storageBucket: "bdatosnormas.firebasestorage.app",
+            messagingSenderId: "274260128540",
+            appId: "1:274260128540:web:6afd65e70385efeb95c0d9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Función para guardar un documento en Firestore
+        async function guardarDocumento() {
+            let numero = document.getElementById("numero").value;
+            let titulo = document.getElementById("titulo").value;
+            let fecha = document.getElementById("fecha").value;
+            let secretaria = document.getElementById("secretaria").value;
+            let responsable = document.getElementById("responsable").value;
+            let documento = document.getElementById("documento").value;
+            let observaciones = document.getElementById("observaciones").value;
+
+            if (numero && titulo && fecha && secretaria && responsable && documento && observaciones) {
+                await addDoc(collection(db, "documentos"), {
+                    numero,
+                    titulo,
+                    fecha,
+                    secretaria,
+                    responsable,
+                    documento,
+                    observaciones
+                });
+                alert("Documento guardado en Firebase");
+                mostrarDocumentos();
+            } else {
+                alert("Por favor, llena todos los campos.");
+            }
+        }
+
+        // Función para leer documentos guardados
+        async function mostrarDocumentos() {
+            let lista = document.getElementById("lista-documentos");
+            lista.innerHTML = "";
+            const querySnapshot = await getDocs(collection(db, "documentos"));
+            querySnapshot.forEach((doc) => {
+                let li = document.createElement("li");
+                li.textContent = `#${doc.data().numero} - ${doc.data().titulo} (${doc.data().fecha})`;
+                lista.appendChild(li);
             });
-        });
+        }
+
+        mostrarDocumentos(); // Cargar documentos al inicio
     </script>
 </body>
 </html>
