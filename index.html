@@ -17,10 +17,9 @@
         body {
             background-color: #f4f4f4;
             display: flex;
-            justify-content: center;
-            align-items: center;
             flex-direction: column;
-            height: 100vh;
+            align-items: center;
+            padding: 20px;
         }
 
         h1 {
@@ -28,85 +27,140 @@
             color: #333;
         }
 
-        /* Tarjeta de formulario */
-        .card {
+        /* Contenedor del formulario */
+        .form-container {
+            display: flex;
             background: white;
             padding: 20px;
-            width: 400px;
             border-radius: 8px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            justify-content: space-between;
+            flex-wrap: wrap;
         }
 
-        /* Inputs */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-right: 10px;
+        }
+
         input, textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
+            width: 200px;
+            padding: 8px;
+            margin-top: 5px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 14px;
         }
 
+        textarea {
+            height: 30px;
+        }
+
         /* Botón */
-        button {
-            width: 100%;
+        .form-container button {
             background-color: #007bff;
             color: white;
-            padding: 10px;
+            padding: 10px 15px;
             border: none;
             border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
-            margin-top: 10px;
+            align-self: flex-end;
+            margin-top: 20px;
         }
 
-        button:hover {
+        .form-container button:hover {
             background-color: #0056b3;
         }
 
-        /* Lista de documentos */
-        .lista-documentos {
+        /* Tabla */
+        .table-container {
             margin-top: 20px;
-            width: 400px;
+            width: 90%;
             background: white;
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
         }
 
-        ul {
-            list-style: none;
-            padding: 0;
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        li {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
         }
 
-        li:last-child {
-            border-bottom: none;
+        th {
+            background-color: #007bff;
+            color: white;
         }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
     </style>
 </head>
 <body>
     <h1>Gestión de Normas</h1>
 
-    <div class="card">
-        <input type="number" id="numero" placeholder="Número">
-        <input type="text" id="titulo" placeholder="Título">
-        <input type="date" id="fecha">
-        <input type="text" id="secretaria" placeholder="Secretaría">
-        <input type="text" id="responsable" placeholder="Responsable">
-        <input type="text" id="documento" placeholder="Documento">
-        <textarea id="observaciones" placeholder="Observaciones"></textarea>
-
+    <!-- Formulario -->
+    <div class="form-container">
+        <div class="form-group">
+            <label>Número</label>
+            <input type="number" id="numero">
+        </div>
+        <div class="form-group">
+            <label>Título</label>
+            <input type="text" id="titulo">
+        </div>
+        <div class="form-group">
+            <label>Fecha de Expedición</label>
+            <input type="date" id="fecha">
+        </div>
+        <div class="form-group">
+            <label>Secretaría</label>
+            <input type="text" id="secretaria">
+        </div>
+        <div class="form-group">
+            <label>Responsable</label>
+            <input type="text" id="responsable">
+        </div>
+        <div class="form-group">
+            <label>Documento</label>
+            <input type="text" id="documento">
+        </div>
+        <div class="form-group">
+            <label>Observaciones</label>
+            <textarea id="observaciones"></textarea>
+        </div>
         <button onclick="guardarDocumento()">Guardar Documento</button>
     </div>
 
-    <div class="lista-documentos">
+    <!-- Tabla -->
+    <div class="table-container">
         <h2>Lista de Normas Guardadas</h2>
-        <ul id="lista-documentos"></ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>Número</th>
+                    <th>Título</th>
+                    <th>Fecha de Expedición</th>
+                    <th>Secretaría</th>
+                    <th>Responsable</th>
+                    <th>Documento</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-documentos"></tbody>
+        </table>
     </div>
 
     <!-- Firebase SDK -->
@@ -153,13 +207,23 @@
         }
 
         async function mostrarDocumentos() {
-            let lista = document.getElementById("lista-documentos");
-            lista.innerHTML = "";
+            let tabla = document.getElementById("tabla-documentos");
+            tabla.innerHTML = "";
             const querySnapshot = await getDocs(collection(db, "documentos"));
             querySnapshot.forEach((doc) => {
-                let li = document.createElement("li");
-                li.textContent = `#${doc.data().numero} - ${doc.data().titulo} (${doc.data().fecha.toDate().toLocaleDateString()})`;
-                lista.appendChild(li);
+                let data = doc.data();
+                let fila = `
+                    <tr>
+                        <td>${data.numero}</td>
+                        <td>${data.titulo}</td>
+                        <td>${data.fecha.toDate().toLocaleDateString()}</td>
+                        <td>${data.secretaria}</td>
+                        <td>${data.responsable}</td>
+                        <td>${data.documento}</td>
+                        <td>${data.observaciones}</td>
+                    </tr>
+                `;
+                tabla.innerHTML += fila;
             });
         }
 
