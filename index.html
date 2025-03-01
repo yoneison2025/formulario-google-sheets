@@ -4,30 +4,116 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Normas</title>
+    <style>
+        /* Reset básico */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Estilos generales */
+        body {
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        /* Tarjeta de formulario */
+        .card {
+            background: white;
+            padding: 20px;
+            width: 400px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Inputs */
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        /* Botón */
+        button {
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Lista de documentos */
+        .lista-documentos {
+            margin-top: 20px;
+            width: 400px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        li:last-child {
+            border-bottom: none;
+        }
+    </style>
 </head>
 <body>
-    <h1>Registro de Normas</h1>
+    <h1>Gestión de Normas</h1>
 
-    <input type="number" id="numero" placeholder="Número"><br>
-    <input type="text" id="titulo" placeholder="Título"><br>
-    <input type="date" id="fecha"><br>
-    <input type="text" id="secretaria" placeholder="Secretaría"><br>
-    <input type="text" id="responsable" placeholder="Responsable"><br>
-    <input type="text" id="documento" placeholder="Documento"><br>
-    <textarea id="observaciones" placeholder="Observaciones"></textarea><br>
+    <div class="card">
+        <input type="number" id="numero" placeholder="Número">
+        <input type="text" id="titulo" placeholder="Título">
+        <input type="date" id="fecha">
+        <input type="text" id="secretaria" placeholder="Secretaría">
+        <input type="text" id="responsable" placeholder="Responsable">
+        <input type="text" id="documento" placeholder="Documento">
+        <textarea id="observaciones" placeholder="Observaciones"></textarea>
 
-    <button onclick="guardarDocumento()">Guardar Documento</button>
+        <button onclick="guardarDocumento()">Guardar Documento</button>
+    </div>
 
-    <h2>Lista de Normas Guardadas</h2>
-    <ul id="lista-documentos"></ul>
+    <div class="lista-documentos">
+        <h2>Lista de Normas Guardadas</h2>
+        <ul id="lista-documentos"></ul>
+    </div>
 
     <!-- Firebase SDK -->
     <script type="module">
-        // Importar Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // 📌 Configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDi814l8RdzuRvHGN6yKkVX9SkaXgA8uX8",
             authDomain: "bdatosnormas.firebaseapp.com",
@@ -37,11 +123,9 @@
             appId: "1:274260128540:web:6afd65e70385efeb95c0d9"
         };
 
-        // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // 📌 Función para guardar un documento en Firestore
         async function guardarDocumento() {
             let numero = document.getElementById("numero").value;
             let titulo = document.getElementById("titulo").value;
@@ -53,9 +137,9 @@
 
             if (numero && titulo && fecha && secretaria && responsable && documento && observaciones) {
                 await addDoc(collection(db, "documentos"), {
-                    numero: parseInt(numero),  // Guardar como número
+                    numero: parseInt(numero),
                     titulo,
-                    fecha: new Date(fecha), // Guardar como fecha
+                    fecha: new Date(fecha),
                     secretaria,
                     responsable,
                     documento,
@@ -68,7 +152,6 @@
             }
         }
 
-        // 📌 Función para leer documentos guardados
         async function mostrarDocumentos() {
             let lista = document.getElementById("lista-documentos");
             lista.innerHTML = "";
@@ -80,10 +163,7 @@
             });
         }
 
-        // Cargar documentos al inicio
         mostrarDocumentos();
-
-        // Hacer la función accesible globalmente
         window.guardarDocumento = guardarDocumento;
     </script>
 </body>
