@@ -3,29 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Documentos</title>
+    <title>Gestión de Normas</title>
 </head>
 <body>
-    <h1>Registro de Documentos</h1>
+    <h1>Registro de Normas</h1>
 
-    <input type="text" id="numero" placeholder="Número"><br>
+    <input type="number" id="numero" placeholder="Número"><br>
     <input type="text" id="titulo" placeholder="Título"><br>
-    <input type="date" id="fecha" placeholder="Fecha de Expedición"><br>
+    <input type="date" id="fecha"><br>
     <input type="text" id="secretaria" placeholder="Secretaría"><br>
     <input type="text" id="responsable" placeholder="Responsable"><br>
     <input type="text" id="documento" placeholder="Documento"><br>
     <textarea id="observaciones" placeholder="Observaciones"></textarea><br>
-    
+
     <button onclick="guardarDocumento()">Guardar Documento</button>
 
-    <h2>Lista de Documentos</h2>
+    <h2>Lista de Normas Guardadas</h2>
     <ul id="lista-documentos"></ul>
 
     <!-- Firebase SDK -->
     <script type="module">
+        // Importar Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+        // 📌 Configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDi814l8RdzuRvHGN6yKkVX9SkaXgA8uX8",
             authDomain: "bdatosnormas.firebaseapp.com",
@@ -35,10 +37,11 @@
             appId: "1:274260128540:web:6afd65e70385efeb95c0d9"
         };
 
+        // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Función para guardar un documento en Firestore
+        // 📌 Función para guardar un documento en Firestore
         async function guardarDocumento() {
             let numero = document.getElementById("numero").value;
             let titulo = document.getElementById("titulo").value;
@@ -50,34 +53,38 @@
 
             if (numero && titulo && fecha && secretaria && responsable && documento && observaciones) {
                 await addDoc(collection(db, "documentos"), {
-                    numero,
+                    numero: parseInt(numero),  // Guardar como número
                     titulo,
-                    fecha,
+                    fecha: new Date(fecha), // Guardar como fecha
                     secretaria,
                     responsable,
                     documento,
                     observaciones
                 });
-                alert("Documento guardado en Firebase");
+                alert("✅ Documento guardado en Firebase");
                 mostrarDocumentos();
             } else {
-                alert("Por favor, llena todos los campos.");
+                alert("⚠️ Por favor, llena todos los campos.");
             }
         }
 
-        // Función para leer documentos guardados
+        // 📌 Función para leer documentos guardados
         async function mostrarDocumentos() {
             let lista = document.getElementById("lista-documentos");
             lista.innerHTML = "";
             const querySnapshot = await getDocs(collection(db, "documentos"));
             querySnapshot.forEach((doc) => {
                 let li = document.createElement("li");
-                li.textContent = `#${doc.data().numero} - ${doc.data().titulo} (${doc.data().fecha})`;
+                li.textContent = `#${doc.data().numero} - ${doc.data().titulo} (${doc.data().fecha.toDate().toLocaleDateString()})`;
                 lista.appendChild(li);
             });
         }
 
-        mostrarDocumentos(); // Cargar documentos al inicio
+        // Cargar documentos al inicio
+        mostrarDocumentos();
+
+        // Hacer la función accesible globalmente
+        window.guardarDocumento = guardarDocumento;
     </script>
 </body>
 </html>
