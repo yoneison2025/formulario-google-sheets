@@ -60,6 +60,12 @@
         #g_id_onload {
             margin-top: 20px;
         }
+        #loading {
+            display: none;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #007bff;
+        }
     </style>
 </head>
 <body>
@@ -67,7 +73,7 @@
 
     <!-- Botón de inicio de sesión de Google -->
     <div id="g_id_onload"
-         data-client_id="778225207377-bm9ppv7n86utavvn9mg8k3q7gpn73e7s.apps.googleusercontent.com" <!-- Tu Client ID -->
+         data-client_id="778225207377-bm9ppv7n86utavvn9mg8k3q7gpn73e7s.apps.googleusercontent.com"
          data-callback="handleCredentialResponse">
     </div>
     <div class="g_id_signin"
@@ -79,6 +85,7 @@
          data-logo_alignment="left">
     </div>
 
+    <!-- Contenedor del formulario -->
     <div class="form-container">
         <div class="form-group">
             <label>Documento</label>
@@ -90,12 +97,15 @@
         </div>
     </div>
 
+    <!-- Mensaje de carga -->
+    <div id="loading">Subiendo archivo...</div>
+
     <script>
         let accessToken = null;
         const CLIENT_ID = "778225207377-bm9ppv7n86utavvn9mg8k3q7gpn73e7s.apps.googleusercontent.com"; <!-- Tu Client ID -->
         const API_KEY = "AIzaSyBllDZO-ZwQfaXYXEoFKXLY-kdbsU9tkAY"; <!-- Tu clave API -->
         const SCOPES = "https://www.googleapis.com/auth/drive.file";
-        const CARPETA_ID = "1hS9qB3JoBL-zPS2xZ-aS429wx6XxVKdr";
+        const CARPETA_ID = "1hS9qB3JoBL-zPS2xZ-aS429wx6XxVKdr"; <!-- ID de la carpeta en Google Drive -->
 
         // Función para manejar la respuesta de autenticación
         function handleCredentialResponse(response) {
@@ -107,8 +117,8 @@
                 // Inicializa la API de Google Drive
                 gapi.load('client:auth2', () => {
                     gapi.client.init({
-                        apiKey: AIzaSyBllDZO-ZwQfaXYXEoFKXLY-kdbsU9tkAY,
-                        clientId: 778225207377-bm9ppv7n86utavvn9mg8k3q7gpn73e7s.apps.googleusercontent.com,
+                        apiKey: API_KEY,
+                        clientId: CLIENT_ID,
                         discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
                         scope: SCOPES
                     }).then(() => {
@@ -121,6 +131,7 @@
             }
         }
 
+        // Función para subir un archivo a Google Drive
         function subirArchivo() {
             if (!accessToken) {
                 alert("Debes iniciar sesión con Google para subir archivos.");
@@ -132,6 +143,9 @@
                 alert("Selecciona un archivo primero.");
                 return;
             }
+
+            // Muestra el mensaje de carga
+            document.getElementById("loading").style.display = "block";
 
             const form = new FormData();
             form.append("metadata", new Blob([JSON.stringify({
@@ -150,9 +164,14 @@
               .then(data => {
                   const fileUrl = `https://drive.google.com/file/d/${data.id}/view`;
                   document.getElementById("documento").value = fileUrl;
+                  document.getElementById("loading").style.display = "none";
                   alert("Archivo subido correctamente.");
               })
-              .catch(error => console.error("Error al subir archivo:", error));
+              .catch(error => {
+                  console.error("Error al subir archivo:", error);
+                  document.getElementById("loading").style.display = "none";
+                  alert("Hubo un error al subir el archivo. Inténtalo de nuevo.");
+              });
         }
     </script>
 </body>
