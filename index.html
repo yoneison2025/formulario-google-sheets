@@ -103,7 +103,7 @@
     <script>
         let accessToken = null;
         const CLIENT_ID = "778225207377-bm9ppv7n86utavvn9mg8k3q7gpn73e7s.apps.googleusercontent.com"; <!-- Tu Client ID -->
-        const API_KEY = "AIzaSyBllDZO-ZwQfaXYXEoFKXLY-kdbsU9tkAY"; <!-- Tu clave API -->
+        const API_KEY = "AIzaSyBllDZO-ZwQfaXYXEoFKXLY-kdbsU9tkAY"; <!-- Tu Clave de API -->
         const SCOPES = "https://www.googleapis.com/auth/drive.file";
         const CARPETA_ID = "1hS9qB3JoBL-zPS2xZ-aS429wx6XxVKdr"; <!-- ID de la carpeta en Google Drive -->
 
@@ -117,12 +117,13 @@
                 // Inicializa la API de Google Drive
                 gapi.load('client:auth2', () => {
                     gapi.client.init({
-                        apiKey: AIzaSyBllDZO-ZwQfaXYXEoFKXLY-kdbsU9tkAY,
-                        clientId: 778225207377-bm9ppv7n86utavvn9mg8k3q7gpn73e7s.apps.googleusercontent.com,
+                        apiKey: API_KEY,
+                        clientId: CLIENT_ID,
                         discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
                         scope: SCOPES
                     }).then(() => {
                         accessToken = gapi.auth.getToken().access_token;
+                        console.log("Access Token:", accessToken); // Verifica el token
                         alert("Autenticación exitosa. Ahora puedes subir archivos.");
                     });
                 });
@@ -147,11 +148,13 @@
             // Muestra el mensaje de carga
             document.getElementById("loading").style.display = "block";
 
-            const form = new FormData();
-            form.append("metadata", new Blob([JSON.stringify({
+            const metadata = {
                 name: file.name,
                 parents: [CARPETA_ID]
-            })], { type: "application/json" }));
+            };
+
+            const form = new FormData();
+            form.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
             form.append("file", file);
 
             fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart", {
@@ -160,18 +163,21 @@
                     "Authorization": "Bearer " + accessToken
                 },
                 body: form
-            }).then(response => response.json())
-              .then(data => {
-                  const fileUrl = `https://drive.google.com/file/d/${data.id}/view`;
-                  document.getElementById("documento").value = fileUrl;
-                  document.getElementById("loading").style.display = "none";
-                  alert("Archivo subido correctamente.");
-              })
-              .catch(error => {
-                  console.error("Error al subir archivo:", error);
-                  document.getElementById("loading").style.display = "none";
-                  alert("Hubo un error al subir el archivo. Inténtalo de nuevo.");
-              });
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            }).then(data => {
+                const fileUrl = `https://drive.google.com/file/d/${data.id}/view`;
+                document.getElementById("documento").value = fileUrl;
+                alert("Archivo subido correctamente.");
+            }).catch(error => {
+                console.error("Error al subir archivo:", error);
+                alert("Hubo un error al subir el archivo. Inténtalo de nuevo.");
+            }).finally(() => {
+                document.getElementById("loading").style.display = "none";
+            });
         }
     </script>
 </body>
