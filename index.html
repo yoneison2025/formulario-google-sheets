@@ -32,27 +32,26 @@
             };
             
             // Enviar los datos al script de Google Apps
-            fetch('https://script.google.com/macros/s/AKfycbyv2QScQOOFE0W-IB7BNA3MEw8yanQYSXubRJH_xS_YdfounAo_qQeLNtsY2CNJQUe3/exec', {
-                method: 'POST',
-                body: JSON.stringify(formData),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.result === 'success') {
-                    alert('Datos enviados correctamente');
-                    document.getElementById('contactForm').reset();
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Hubo un error al enviar los datos');
-            });
-        });
+          fetch('https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbyv2QScQOOFE0W-IB7BNA3MEw8yanQYSXubRJH_xS_YdfounAo_qQeLNtsY2CNJQUe3/exec', {
+    method: 'POST',
+    body: JSON.stringify(formData),
+    headers: {
+        'Content-Type': 'application/json'
+    }
+})
+.then(response => response.json())
+.then(data => {
+    if (data.result === 'success') {
+        alert('Datos enviados correctamente');
+        document.getElementById('contactForm').reset();
+    } else {
+        alert('Error: ' + data.message);
+    }
+})
+.catch(error => {
+    console.error('Error:', error);
+    alert('Hubo un error al enviar los datos');
+});
     </script>
 </body>
 </html>
