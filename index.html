@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario</title>
+    <title>Formulario de Contacto</title>
 </head>
 <body>
     <h1>Formulario de Contacto</h1>
@@ -37,16 +37,13 @@
                 body: JSON.stringify(formData),
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                mode: 'no-cors' // Desactiva CORS
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.result === 'success') {
-                    alert('Datos enviados correctamente');
-                    document.getElementById('contactForm').reset();
-                } else {
-                    alert('Error: ' + data.message);
-                }
+            .then(() => {
+                // No podrás leer la respuesta, pero la solicitud se enviará
+                alert('Solicitud enviada (pero no se puede verificar la respuesta)');
+                document.getElementById('contactForm').reset(); // Limpiar el formulario
             })
             .catch(error => {
                 console.error('Error:', error);
