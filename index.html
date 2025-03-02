@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Normas</title>
-    <script src="https://accounts.google.com/gsi/client"></script> <!-- Nueva biblioteca GIS -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         * {
             margin: 0;
@@ -19,152 +19,87 @@
             align-items: center;
             padding: 20px;
         }
-        .form-container {
-            display: flex;
-            flex-wrap: wrap;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            gap: 10px;
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
         }
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            min-width: 180px;
-        }
-        input, textarea {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        #g_id_onload {
-            margin-top: 20px;
-        }
-        #loading {
-            display: none;
-            margin-top: 20px;
-            font-size: 18px;
-            color: #007bff;
+        .google-login {
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
     <h1>Gestión de Normas</h1>
-
-    <!-- Botón de inicio de sesión de Google -->
-    <div id="g_id_onload"
-         data-client_id="778225207377-bm9ppv7n86utavvn9mg8k3q7gpn73e7s.apps.googleusercontent.com"
-         data-callback="handleCredentialResponse">
-    </div>
-    <div class="g_id_signin"
-         data-type="standard"
-         data-size="large"
-         data-theme="outline"
-         data-text="sign_in_with"
-         data-shape="rectangular"
-         data-logo_alignment="left">
-    </div>
-
-    <!-- Contenedor del formulario -->
-    <div class="form-container">
-        <div class="form-group">
-            <label>Documento</label>
-            <input type="text" id="documento" readonly>
+    
+    <!-- Botón de Login con Google -->
+    <div class="google-login">
+        <div id="g_id_onload"
+             data-client_id="778225207377-bm9ppv7n86utavvn9mg8k3q7gpn73e7s.apps.googleusercontent.com"
+             data-auto_prompt="false"
+             data-callback="handleCredentialResponse">
         </div>
-        <div class="form-group">
-            <input type="file" id="fileInput">
-            <button onclick="subirArchivo()">Cargar Documento</button>
-        </div>
+        <div class="g_id_signin" data-type="standard"></div>
     </div>
 
-    <!-- Mensaje de carga -->
-    <div id="loading">Subiendo archivo...</div>
+    <!-- Sección de gestión de normas -->
+    <div id="app" style="display: none;">
+        <p id="user-info"></p>
+        <button onclick="logout()">Cerrar Sesión</button>
+        
+        <!-- Formulario -->
+        <div class="form-container">
+            <div class="form-group">
+                <label>Número</label>
+                <input type="text" id="numero">
+            </div>
+            <div class="form-group">
+                <label>Título</label>
+                <input type="text" id="titulo">
+            </div>
+            <div class="form-group">
+                <label>Fecha de Expedición</label>
+                <input type="date" id="fecha">
+            </div>
+            <div class="form-group">
+                <label>Secretaría</label>
+                <input type="text" id="secretaria">
+            </div>
+            <div class="form-group">
+                <label>Responsable</label>
+                <input type="text" id="responsable">
+            </div>
+            <div class="form-group">
+                <label>Documento</label>
+                <input type="text" id="documento">
+            </div>
+            <div class="form-group">
+                <label>Observaciones</label>
+                <textarea id="observaciones"></textarea>
+            </div>
+            <button onclick="guardarDocumento()">Guardar Documento</button>
+            <button class="delete-button" onclick="eliminarTodosLosDocumentos()">Eliminar Todos los Documentos</button>
+        </div>
+    </div>
 
     <script>
-        let accessToken = null;
-        const CLIENT_ID = "778225207377-bm9ppv7n86utavvn9mg8k3q7gpn73e7s.apps.googleusercontent.com"; <!-- Tu Client ID -->
-        const API_KEY = "AIzaSyBllDZO-ZwQfaXYXEoFKXLY-kdbsU9tkAY"; <!-- Tu Clave de API -->
-        const SCOPES = "https://www.googleapis.com/auth/drive.file";
-        const CARPETA_ID = "1hS9qB3JoBL-zPS2xZ-aS429wx6XxVKdr"; <!-- ID de la carpeta en Google Drive -->
-
-        // Función para manejar la respuesta de autenticación
         function handleCredentialResponse(response) {
-            if (response.credential) {
-                const idToken = response.credential;
-                console.log("Token de ID recibido:", idToken);
-
-                // Aquí puedes usar el token para autenticar al usuario en tu backend
-                // o para inicializar la API de Google Drive.
-                alert("Autenticación exitosa. Ahora puedes subir archivos.");
-            } else {
-                console.error("Error en la autenticación:", response);
-            }
+            const responsePayload = parseJwt(response.credential);
+            document.getElementById("user-info").innerText = `Bienvenido, ${responsePayload.name} (${responsePayload.email})`;
+            document.getElementById("app").style.display = "block";
+            document.querySelector(".google-login").style.display = "none";
         }
 
-        // Función para subir un archivo a Google Drive
-        function subirArchivo() {
-            if (!accessToken) {
-                alert("Debes iniciar sesión con Google para subir archivos.");
-                return;
-            }
+        function parseJwt(token) {
+            let base64Url = token.split('.')[1];
+            let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            let jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%'+('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+            return JSON.parse(jsonPayload);
+        }
 
-            const file = document.getElementById("fileInput").files[0];
-            if (!file) {
-                alert("Selecciona un archivo primero.");
-                return;
-            }
-
-            document.getElementById("loading").style.display = "block";
-
-            const metadata = {
-                name: file.name,
-                parents: [CARPETA_ID]
-            };
-
-            const form = new FormData();
-            form.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
-            form.append("file", file);
-
-            fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart", {
-                method: "POST",
-                headers: {
-                    "Authorization": "Bearer " + accessToken
-                },
-                body: form
-            }).then(response => {
-                if (!response.ok) {
-                    throw new Error(`Error ${response.status}: ${response.statusText}`);
-                }
-                return response.json();
-            }).then(data => {
-                const fileUrl = `https://drive.google.com/file/d/${data.id}/view`;
-                document.getElementById("documento").value = fileUrl;
-                alert("Archivo subido correctamente.");
-            }).catch(error => {
-                console.error("Error al subir archivo:", error);
-                alert("Hubo un error al subir el archivo. Inténtalo de nuevo.");
-            }).finally(() => {
-                document.getElementById("loading").style.display = "none";
-            });
+        function logout() {
+            document.getElementById("user-info").innerText = "";
+            document.getElementById("app").style.display = "none";
+            document.querySelector(".google-login").style.display = "block";
         }
     </script>
 </body>
