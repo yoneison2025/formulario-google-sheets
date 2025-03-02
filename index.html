@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Normas</title>
-    <script src="https://accounts.google.com/gsi/client"></script> <!-- Biblioteca de GIS -->
-    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client"></script> <!-- Nueva biblioteca GIS -->
     <style>
         * {
             margin: 0;
@@ -113,19 +112,9 @@
                 const idToken = response.credential;
                 console.log("Token de ID recibido:", idToken);
 
-                // Inicializa la API de Google Drive
-                gapi.load('client:auth2', () => {
-                    gapi.client.init({
-                        apiKey: API_KEY,
-                        clientId: CLIENT_ID,
-                        discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
-                        scope: SCOPES
-                    }).then(() => {
-                        accessToken = gapi.auth.getToken().access_token;
-                        console.log("Access Token:", accessToken);
-                        alert("Autenticación exitosa. Ahora puedes subir archivos.");
-                    });
-                });
+                // Aquí puedes usar el token para autenticar al usuario en tu backend
+                // o para inicializar la API de Google Drive.
+                alert("Autenticación exitosa. Ahora puedes subir archivos.");
             } else {
                 console.error("Error en la autenticación:", response);
             }
