@@ -3,124 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Normas</title>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-        body {
-            background-color: #f4f4f4;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        h1 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-        .google-login {
-            margin-bottom: 20px;
-        }
-    </style>
+    <title>Inicio de Sesión</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js"></script>
+    <script src="js/firebase-config.js"></script>
 </head>
 <body>
-    <h1>Gestión de Normas</h1>
-    
-    <!-- Botón de Login con Google -->
-    <div class="google-login">
-        <div id="g_id_onload"
-             data-client_id="778225207377-bm9ppv7n86utavvn9mg8k3q7gpn73e7s.apps.googleusercontent.com"
-             data-auto_prompt="false"
-             data-callback="handleCredentialResponse">
-        </div>
-        <div class="g_id_signin" data-type="standard"></div>
+    <div class="container">
+        <h2>Iniciar Sesión</h2>
+        <button id="googleLogin">Iniciar con Google</button>
+        <p id="user"></p>
     </div>
-
-    <!-- Sección de gestión de normas -->
-    <div id="app" style="display: none;">
-        <p id="user-info"></p>
-        <button onclick="logout()">Cerrar Sesión</button>
-        
-        <!-- Formulario -->
-        <div class="form-container">
-            <div class="form-group">
-                <label>Número</label>
-                <input type="text" id="numero">
-            </div>
-            <div class="form-group">
-                <label>Título</label>
-                <input type="text" id="titulo">
-            </div>
-            <div class="form-group">
-                <label>Fecha de Expedición</label>
-                <input type="date" id="fecha">
-            </div>
-            <div class="form-group">
-                <label>Secretaría</label>
-                <input type="text" id="secretaria">
-            </div>
-            <div class="form-group">
-                <label>Responsable</label>
-                <input type="text" id="responsable">
-            </div>
-            <div class="form-group">
-                <label>Documento</label>
-                <input type="text" id="documento">
-            </div>
-            <div class="form-group">
-                <label>Observaciones</label>
-                <textarea id="observaciones"></textarea>
-            </div>
-            <button onclick="guardarDocumento()">Guardar Documento</button>
-            <button class="delete-button" onclick="eliminarTodosLosDocumentos()">Eliminar Todos los Documentos</button>
-        </div>
-
-        <div class="table-container">
-            <h2>Lista de Normas Guardadas</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Número</th>
-                        <th>Título</th>
-                        <th>Fecha de Expedición</th>
-                        <th>Secretaría</th>
-                        <th>Responsable</th>
-                        <th>Documento</th>
-                        <th>Observaciones</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-documentos"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <script>
-        function handleCredentialResponse(response) {
-            const responsePayload = parseJwt(response.credential);
-            document.getElementById("user-info").innerText = `Bienvenido, ${responsePayload.name} (${responsePayload.email})`;
-            document.getElementById("app").style.display = "block";
-            document.querySelector(".google-login").style.display = "none";
-        }
-
-        function parseJwt(token) {
-            let base64Url = token.split('.')[1];
-            let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            let jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%'+('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-            return JSON.parse(jsonPayload);
-        }
-
-        function logout() {
-            document.getElementById("user-info").innerText = "";
-            document.getElementById("app").style.display = "none";
-            document.querySelector(".google-login").style.display = "block";
-        }
-    </script>
+    <script src="js/auth.js"></script>
 </body>
 </html>
