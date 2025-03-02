@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Normas</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
     <style>
         * {
             margin: 0;
@@ -78,6 +80,24 @@
             </div>
             <button onclick="guardarDocumento()">Guardar Documento</button>
             <button class="delete-button" onclick="eliminarTodosLosDocumentos()">Eliminar Todos los Documentos</button>
+        </div>
+
+        <div class="table-container">
+            <h2>Lista de Normas Guardadas</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Número</th>
+                        <th>Título</th>
+                        <th>Fecha de Expedición</th>
+                        <th>Secretaría</th>
+                        <th>Responsable</th>
+                        <th>Documento</th>
+                        <th>Observaciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-documentos"></tbody>
+            </table>
         </div>
     </div>
 
