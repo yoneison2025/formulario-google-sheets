@@ -17,6 +17,11 @@ body {
     width: 350px;
 }
 
+h2 {
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+
 button {
     background: #4285F4;
     color: white;
